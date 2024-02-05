@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let nodes = [];
     let currentNode = null;
+    let scale = 1, translatePos = { x: 0, y: 0 };
+    let startDragOffset = {};
+    let isDragging = false;
 
     function drawNode(node) {
         ctx.beginPath();
@@ -31,11 +34,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function render() {
+        ctx.save();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.translate(translatePos.x, translatePos.y);
+        ctx.scale(scale, scale);
         nodes.forEach(node => {
             drawLines(node);
             drawNode(node);
         });
+        ctx.restore();
     }
 
     function addNode(text, asSibling = false) {
@@ -72,7 +79,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Dragging
+    canvas.addEventListener('mousedown', function (e) {
+        startDragOffset.x = e.clientX - translatePos.x;
+        startDragOffset.y = e.clientY - translatePos.y;
+        isDragging = true;
+    });
+
+    canvas.addEventListener('mousemove', function (e) {
+        if (isDragging) {
+            translatePos.x = e.clientX - startDragOffset.x;
+            translatePos.y = e.clientY - startDragOffset.y;
+            render();
+        }
+    });
+
+    canvas.addEventListener('mouseup', function () {
+        isDragging = false;
+    });
+
+    // Zooming
+    canvas.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        const zoomFactor = 0.1;
+        const zoom = e.deltaY < 0 ? (1 + zoomFactor) : (1 - zoomFactor);
+        scale *= zoom;
+        translatePos.x -= zoomFactor * (e.clientX - translatePos.x) * (e.deltaY < 0 ? 1 : -1);
+        translatePos.y -= zoomFactor * (e.clientY - translatePos.y) * (e.deltaY < 0 ? 1 : -1);
+        render();
+    });
+
     // Initial node
     addNode('Start Node');
 });
-
