@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function addNode(text, asSibling = false) {
         const baseX = 50, baseY = 50, width = 100, height = 50, margin = 10;
-        let newNode = { text: text, width: width, height: height, parent: null, x: 0, y: 0 };
+        let newNode = { text: text, width: width, height: height, parent: null };
         
         if (!currentNode || asSibling && !currentNode.parent) {
             newNode.x = baseX + nodes.length * (width + margin);
@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Dragging
     canvas.addEventListener('mousedown', function (e) {
         startDragOffset.x = e.clientX - translatePos.x;
         startDragOffset.y = e.clientY - translatePos.y;
@@ -97,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
         isDragging = false;
     });
 
+    // Zooming
     canvas.addEventListener('wheel', function (e) {
         e.preventDefault();
         const zoomFactor = 0.1;
@@ -107,6 +109,6 @@ document.addEventListener('DOMContentLoaded', function () {
         render();
     });
 
-    // Ensures an initial "Start Node" is created at the beginning.
-    addNode('Start Node', false);
+    // Initial node
+    addNode('Start Node');
 });
